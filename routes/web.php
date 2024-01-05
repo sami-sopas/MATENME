@@ -37,3 +37,13 @@ Route::get('/projects/{project}',[ProjectsController::class, 'show'])->name('pro
 // Route::post('/projects', function () {
 //     App\Models\Project::create(request(['title', 'description']));
 // });
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified',
+])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+});

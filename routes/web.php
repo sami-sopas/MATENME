@@ -27,6 +27,8 @@ Route::get('/projects',[ProjectsController::class, 'index'])->name('projects.ind
 
 Route::post('/projects',[ProjectsController::class, 'store'])->name('projects.store');
 
+Route::get('/projects/{project}',[ProjectsController::class, 'show'])->name('projects.show');
+
 // Route::get('/projects', function () {
 //     $projects = App\Models\Project::all();
 //     return view('projects.index', compact('projects'));

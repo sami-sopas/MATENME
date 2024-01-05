@@ -7,8 +7,9 @@
     <title>Document</title>
 </head>
 <body>
-    @foreach ($projects as $project)
-        <h1>{{$project->title}}</h1>
-    @endforeach
+    <h1>{{$project->title}}</h1>
+    <div>
+        {{$project->description}}
+    </div>
 </body>
 </html>

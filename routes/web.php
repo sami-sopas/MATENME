@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Project;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProjectsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,3 +22,16 @@ Route::get('/', function () {
 Route::get('/about', function () {
     return view('about');
 });
+
+Route::get('/projects',[ProjectsController::class, 'index'])->name('projects.index');
+
+Route::post('/projects',[ProjectsController::class, 'store'])->name('projects.store');
+
+// Route::get('/projects', function () {
+//     $projects = App\Models\Project::all();
+//     return view('projects.index', compact('projects'));
+// });
+
+// Route::post('/projects', function () {
+//     App\Models\Project::create(request(['title', 'description']));
+// });

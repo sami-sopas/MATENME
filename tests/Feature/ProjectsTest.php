@@ -61,4 +61,13 @@ class ProjectsTest extends TestCase
             ->assertSee($project->title)
             ->assertSee($project->description);
     }
+
+    public function test_a_project_requires_an_owner(): void
+    {
+        //$this->withoutExceptionHandling();
+
+        $attributes =  \App\Models\Project::factory()->raw();
+
+        $this->post('/projects', $attributes)->assertRedirectToRoute('login');
+    }
 }

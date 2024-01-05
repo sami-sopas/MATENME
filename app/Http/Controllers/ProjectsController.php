@@ -20,8 +20,12 @@ class ProjectsController extends Controller
         //Validar
         $attributes = request()->validate([
             'title' => 'required',
-             'description' => 'required'
+             'description' => 'required',
             ]);
+
+        $attributes['owner_id'] = auth()->id();
+
+        //dd($attributes); Imprime en consola omg
 
         //Persistir
         Project::create($attributes);

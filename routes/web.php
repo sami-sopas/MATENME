@@ -25,7 +25,7 @@ Route::get('/about', function () {
 
 Route::get('/projects',[ProjectsController::class, 'index'])->name('projects.index');
 
-Route::post('/projects',[ProjectsController::class, 'store'])->name('projects.store');
+Route::post('/projects',[ProjectsController::class, 'store'])->name('projects.store')->middleware('auth');
 
 Route::get('/projects/{project}',[ProjectsController::class, 'show'])->name('projects.show');
 

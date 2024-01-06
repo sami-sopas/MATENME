@@ -9,11 +9,20 @@ use Tests\TestCase;
 class ProjectsTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
+
+    public function test_only_authenticated_users_can_create_projects() : void
+    {
+        $attributes =  \App\Models\Project::factory()->raw();
+
+        $this->post('/projects', $attributes)->assertRedirectToRoute('login');
+    }
+
     /**
      * A basic feature test example.
      */
     public function test_a_user_can_create_a_project(): void
     {
+        $this->actingAs(\App\Models\User::factory()->create());
 
         $this->withoutExceptionHandling();
 
@@ -34,14 +43,19 @@ class ProjectsTest extends TestCase
 
     public function test_a_project_requires_a_title(): void
     {
-        //$attributes = factory('App\Models\Project')->raw(['title' => '']); No jalo
+        //Crear usuario para que estemos "autenticados"
+        $this->actingAs(\App\Models\User::factory()->create());
+
+        $attributes = \App\Models\Project::factory()->raw(['title' => '']);
+
 
         //Asegurar que haya un error en la sesion al no tener titulo
-        $this->post('/projects',[])->assertSessionHasErrors('title');
+        $this->post('/projects',$attributes)->assertSessionHasErrors('title');
     }
 
     public function test_a_project_requires_a_description(): void
     {
+        $this->actingAs(\App\Models\User::factory()->create());
 
         //Asegurar que haya un error en la sesion al no tener titulo
         $this->post('/projects',[])->assertSessionHasErrors('description');
@@ -60,14 +74,5 @@ class ProjectsTest extends TestCase
         $this->get($project->path())
             ->assertSee($project->title)
             ->assertSee($project->description);
-    }
-
-    public function test_a_project_requires_an_owner(): void
-    {
-        //$this->withoutExceptionHandling();
-
-        $attributes =  \App\Models\Project::factory()->raw();
-
-        $this->post('/projects', $attributes)->assertRedirectToRoute('login');
     }
 }

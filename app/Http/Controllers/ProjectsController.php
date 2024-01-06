@@ -28,7 +28,8 @@ class ProjectsController extends Controller
         //dd($attributes); Imprime en consola omg
 
         //Persistir
-        Project::create($attributes);
+        //Project::create($attributes);
+        auth()->user()->projects()->create($attributes);
 
         //Redireccionar
         return redirect('/projects');

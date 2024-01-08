@@ -10,7 +10,7 @@ class ProjectsController extends Controller
 {
     public function index()
     {
-        $projects = \App\Models\Project::all();
+        $projects = auth()->user()->projects;
 
         return view('project.index', compact('projects'));
     }
@@ -39,6 +39,17 @@ class ProjectsController extends Controller
     {
         //LO que se uso para testear nomas
         //$project = Project::find(request('project'));
+
+        //Verifica si dos modelos son iguales
+        if(auth()->user()->isNot($project->owner)){
+            abort(403);
+        }
+
+        /* Anterior metodo
+         if(auth()->user()->id != $project->owner_id){
+             abort(403);
+         }
+         */
 
         return view('project.show', compact('project'));
     }

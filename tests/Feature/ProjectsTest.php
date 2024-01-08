@@ -10,11 +10,29 @@ class ProjectsTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
 
-    public function test_only_authenticated_users_can_create_projects() : void
+    public function test_guests_cannot_create_projects() : void
     {
         $attributes =  \App\Models\Project::factory()->raw();
 
         $this->post('/projects', $attributes)->assertRedirectToRoute('login');
+    }
+
+    public function test_guests_cannot_view_projects() : void
+    {
+        $this->get('/projects')->assertRedirectToRoute('login');
+    }
+
+    public function test_guests_cannot_view_a_single_project() : void
+    {
+        $project = \App\Models\Project::factory()->create();
+
+        $this->get($project->path())->assertRedirectToRoute('login');
+    }
+
+    public function test_guests_may_not_view_projects() : void
+    {
+
+        $this->get('/projects')->assertRedirectToRoute('login');
     }
 
     /**
@@ -41,6 +59,8 @@ class ProjectsTest extends TestCase
         $this->get('/projects')->assertSee($attributes['title']);
     }
 
+
+
     public function test_a_project_requires_a_title(): void
     {
         //Crear usuario para que estemos "autenticados"
@@ -61,18 +81,40 @@ class ProjectsTest extends TestCase
         $this->post('/projects',[])->assertSessionHasErrors('description');
     }
 
-    public function test_a_user_can_view_a_project(): void
+    public function test_a_user_can_view_their_project(): void
     {
+
+        //Autenticar al usuario
+        $this->be(\App\Models\User::factory()->create());
+
         $this->withoutExceptionHandling(); //Quitar mensadas
 
         //Anterior: factory('App\Models\Project')->create();
 
-        //Nuevo
-        $project = \App\Models\Project::factory()->create();
+        //Crear proyecto, y asignarlo como suyo
+        $project = \App\Models\Project::factory()->create(['owner_id' => auth()->id()]);
 
         //Ver si puede ver el proyecto
         $this->get($project->path())
             ->assertSee($project->title)
             ->assertSee($project->description);
+    }
+
+    public function test_an_authenticated_user_cannot_view_the_project_of_others(): void
+    {
+
+        //Autenticar al usuario
+        $this->be(\App\Models\User::factory()->create());
+
+        //$this->withoutExceptionHandling(); //Si la dejo da http exeption
+
+        //Anterior: factory('App\Models\Project')->create();
+
+        //Crear proyecto PERO no asignarlo como suyo
+        $project = \App\Models\Project::factory()->create();
+
+        //Intentar entrar a ese proyecto no mio
+        $this->get($project->path())
+            ->assertStatus(403);
     }
 }

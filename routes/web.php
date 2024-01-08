@@ -23,11 +23,13 @@ Route::get('/about', function () {
     return view('about');
 });
 
-Route::get('/projects',[ProjectsController::class, 'index'])->name('projects.index');
+Route::group(['middleware' => ['auth:sanctum', 'verified']], function () {
+    Route::get('/projects',[ProjectsController::class, 'index'])->name('projects.index');
+    Route::get('/projects/{project}',[ProjectsController::class, 'show'])->name('projects.show');
+    Route::post('/projects',[ProjectsController::class, 'store'])->name('projects.store');
+});
 
-Route::post('/projects',[ProjectsController::class, 'store'])->name('projects.store')->middleware('auth');
 
-Route::get('/projects/{project}',[ProjectsController::class, 'show'])->name('projects.show');
 
 // Route::get('/projects', function () {
 //     $projects = App\Models\Project::all();

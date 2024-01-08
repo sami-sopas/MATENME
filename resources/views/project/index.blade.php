@@ -1,21 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
+<x-app-layout>
+    <div class="flex align-center">
+        <h1 class="mr-auto text-3xl">Projects</h1>
+        <a href="/projects/create" class="text-blue-500 mt-5">New Project</a>
+    </div>
+
+
     @forelse ($projects as $project)
-        <li>
-            <a href="{{ $project->path() }}">
-                {{$project->title}}
-            </a>
-        </li>
+    <li>
+        <a href="{{ $project->path() }}">
+            {{$project->title}}
+        </a>
+    </li>
 
     @empty
         <li>No proyectos mano.</li>
     @endforelse
-</body>
-</html>
+</x-app-layout>

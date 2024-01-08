@@ -6,28 +6,32 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class ProjectsTest extends TestCase
+class ManageProjectsTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
 
-    public function test_guests_cannot_create_projects() : void
+    public function test_guests_cannot_manage_projects() : void
     {
-        $attributes =  \App\Models\Project::factory()->raw();
+        $project =  \App\Models\Project::factory()->create();
 
-        $this->post('/projects', $attributes)->assertRedirectToRoute('login');
+        $this->get('/projects')->assertRedirectToRoute('login'); //Acceder al index
+        $this->get('/projects/create')->assertRedirectToRoute('login'); //Acceder a crear proyecto
+        $this->get($project->path())->assertRedirectToRoute('login'); //Acceder a proyecto especifico
+        $this->post('/projects', $project->toArray())->assertRedirect('login'); //Crear a un proyecto
     }
 
-    public function test_guests_cannot_view_projects() : void
-    {
-        $this->get('/projects')->assertRedirectToRoute('login');
-    }
+    //Estos se fusionaorn en un solo test, el de cannot create projects
+    // public function test_guests_cannot_view_projects() : void
+    // {
+    //     $this->get('/projects')->assertRedirectToRoute('login');
+    // }
 
-    public function test_guests_cannot_view_a_single_project() : void
-    {
-        $project = \App\Models\Project::factory()->create();
+    // public function test_guests_cannot_view_a_single_project() : void
+    // {
+    //     $project = \App\Models\Project::factory()->create();
 
-        $this->get($project->path())->assertRedirectToRoute('login');
-    }
+    //     $this->get($project->path())->assertRedirectToRoute('login');
+    // }
 
     public function test_guests_may_not_view_projects() : void
     {
@@ -41,6 +45,9 @@ class ProjectsTest extends TestCase
     public function test_a_user_can_create_a_project(): void
     {
         $this->actingAs(\App\Models\User::factory()->create());
+
+        //Existe la pagina para crear proyectos
+        $this->get('/projects/create')->assertStatus(200);
 
         $this->withoutExceptionHandling();
 

@@ -20,7 +20,7 @@ class ProjectsController extends Controller
         //Validar
         $attributes = request()->validate([
             'title' => 'required',
-             'description' => 'required',
+            'description' => 'required',
             ]);
 
         $attributes['owner_id'] = auth()->id();
@@ -52,5 +52,10 @@ class ProjectsController extends Controller
          */
 
         return view('project.show', compact('project'));
+    }
+
+    public function create()
+    {
+        return view('project.create');
     }
 }

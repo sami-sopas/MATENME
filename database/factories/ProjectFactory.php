@@ -17,9 +17,11 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => $this->faker->sentence,
-            'description' => $this->faker->paragraph,
-            'owner_id' => \App\Models\User::factory()->create()->id,
+            'title' => $this->faker->sentence(4),
+            'description' => $this->faker->paragraph(4),
+            'owner_id' => function() {
+                return \App\Models\User::factory()->create()->id;
+            }
         ];
     }
 }

@@ -15,10 +15,10 @@
                 <div class="mb-6">
                     <h3 class="text-gray-600 text-xl mb-3">Tasks</h3>
 
-                    <div class="card mb-3">Lorem Impsum</div>
-                    <div class="card mb-3">Lorem Impsum</div>
-                    <div class="card mb-3">Lorem Impsum</div>
-                    <div class="card mb-3">Lorem Impsum</div>
+                    @foreach ($projects->tasks as $task)
+                        <div class="card mb-3">{{ $task->body }}</div>
+                    @endforeach
+
                 </div>
 
                 <div>

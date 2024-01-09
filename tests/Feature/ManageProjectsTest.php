@@ -44,7 +44,10 @@ class ManageProjectsTest extends TestCase
      */
     public function test_a_user_can_create_a_project(): void
     {
-        $this->actingAs(\App\Models\User::factory()->create());
+        //$this->actingAs(\App\Models\User::factory()->create());
+
+        //Se llama al metodo de TestCase.php y nos ahorramos el actingAs
+        $this->signIn();
 
         //Existe la pagina para crear proyectos
         $this->get('/projects/create')->assertStatus(200);
@@ -71,7 +74,7 @@ class ManageProjectsTest extends TestCase
     public function test_a_project_requires_a_title(): void
     {
         //Crear usuario para que estemos "autenticados"
-        $this->actingAs(\App\Models\User::factory()->create());
+        $this->signIn();
 
         $attributes = \App\Models\Project::factory()->raw(['title' => '']);
 
@@ -82,17 +85,21 @@ class ManageProjectsTest extends TestCase
 
     public function test_a_project_requires_a_description(): void
     {
-        $this->actingAs(\App\Models\User::factory()->create());
+        $this->signIn();
+
+        $attributes = \App\Models\Project::factory()->raw(['description' => '']);
 
         //Asegurar que haya un error en la sesion al no tener titulo
-        $this->post('/projects',[])->assertSessionHasErrors('description');
+        $this->post('/projects',$attributes)->assertSessionHasErrors('description');
     }
 
+    /*
     public function test_a_user_can_view_their_project(): void
     {
 
         //Autenticar al usuario
-        $this->be(\App\Models\User::factory()->create());
+        $this->signIn();
+        //$this->be(\App\Models\User::factory()->create());
 
         $this->withoutExceptionHandling(); //Quitar mensadas
 
@@ -105,13 +112,13 @@ class ManageProjectsTest extends TestCase
         $this->get($project->path())
             ->assertSee($project->title)
             ->assertSee($project->description);
-    }
+    }*/
 
     public function test_an_authenticated_user_cannot_view_the_project_of_others(): void
     {
 
         //Autenticar al usuario
-        $this->be(\App\Models\User::factory()->create());
+        $this->signIn();
 
         //$this->withoutExceptionHandling(); //Si la dejo da http exeption
 

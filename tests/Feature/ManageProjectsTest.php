@@ -45,6 +45,8 @@ class ManageProjectsTest extends TestCase
      */
     public function test_a_user_can_create_a_project(): void
     {
+        $this->withoutExceptionHandling();
+
         //$this->actingAs(\App\Models\User::factory()->create());
 
         //Se llama al metodo de TestCase.php y nos ahorramos el actingAs
@@ -53,11 +55,10 @@ class ManageProjectsTest extends TestCase
         //Existe la pagina para crear proyectos
         $this->get('/projects/create')->assertStatus(200);
 
-        $this->withoutExceptionHandling();
-
         $attributes = [
             'title' => $this->faker->sentence,
-            'description' => $this->faker->paragraph,
+            'description' => $this->faker->sentence,
+            'notes' => 'General notes here.',
         ];
 
         //Con los datos que se comparara el test, realizar la peticion
@@ -66,16 +67,37 @@ class ManageProjectsTest extends TestCase
         //Encontrar el proyecto que se creo
         $project = Project::where($attributes)->first();
 
+        //Verificar que se redirigio a ese proyecto
         $response->assertRedirect($project->path());
 
         //Verificar que se creo el registro en la DB
         $this->assertDatabaseHas('projects', $attributes);
 
-        //Con una peticion test ver si se creo
-        $this->get('/projects')->assertSee($attributes['title']);
+        //Ver que esten los datos en la pagina
+        $this->get($project->path())
+            ->assertSee($attributes['title'])
+            ->assertSee($attributes['description'])
+            ->assertSee($attributes['notes']);
     }
 
+    public function test_a_user_can_update_a_project() : void
+    {
+        //Crear usuario para que estemos "autenticados"
+        $this->signIn();
 
+        $this->withoutDeprecationHandling();
+
+        //Crear proyecto que le pertenezca
+        $project = \App\Models\Project::factory()->create(['owner_id' => auth()->id()]);
+
+        //Peticion para actualizarlo
+        $this->patch($project->path(), [
+            'notes' => 'Changed',
+        ]);
+
+        //Asegurarnos que se actualizo viendo la DB
+        $this->assertDatabaseHas('projects', ['notes' => 'Changed']);
+    }
 
     public function test_a_project_requires_a_title(): void
     {
@@ -83,7 +105,6 @@ class ManageProjectsTest extends TestCase
         $this->signIn();
 
         $attributes = \App\Models\Project::factory()->raw(['title' => '']);
-
 
         //Asegurar que haya un error en la sesion al no tener titulo
         $this->post('/projects',$attributes)->assertSessionHasErrors('title');

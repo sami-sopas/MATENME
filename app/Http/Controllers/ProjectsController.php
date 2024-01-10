@@ -21,11 +21,12 @@ class ProjectsController extends Controller
         $attributes = request()->validate([
             'title' => 'required',
             'description' => 'required',
+            'notes' => 'min:3',
             ]);
 
-        $attributes['owner_id'] = auth()->id();
+        //$attributes['owner_id'] = auth()->id();
 
-        //dd($attributes); Imprime en consola omg
+        //dd($attributes); //Imprime en consola omg
 
         //Persistir
         //Project::create($attributes);
@@ -33,6 +34,11 @@ class ProjectsController extends Controller
 
         //Redireccionar
         return redirect($project->path());
+    }
+
+    public function update(Project $project)
+    {
+
     }
 
     public function show(Project $project)

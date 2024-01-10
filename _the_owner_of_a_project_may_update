@@ -1,0 +1,20 @@
+PHPUnit 10.5.5 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.1.10
+Configuration: C:\laragon\www\testing\phpunit.xml
+
+.E                                                                  2 / 2 (100%)
+
+Time: 00:01.679, Memory: 40.00 MB
+
+There was 1 error:
+
+1) Tests\Feature\ProjectTaskTest::test_only_the_owner_of_a_project_may_update_a_task
+ErrorException: Undefined variable $task
+
+C:\laragon\www\testing\vendor\laravel\framework\src\Illuminate\Foundation\Bootstrap\HandleExceptions.php:255
+C:\laragon\www\testing\tests\Feature\ProjectTaskTest.php:108
+C:\laragon\www\testing\vendor\laravel\framework\src\Illuminate\Foundation\Testing\TestCase.php:176
+
+ERRORS!
+Tests: 2, Assertions: 2, Errors: 1.

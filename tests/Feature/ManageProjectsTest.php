@@ -2,9 +2,10 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\Project;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ManageProjectsTest extends TestCase
 {
@@ -59,8 +60,13 @@ class ManageProjectsTest extends TestCase
             'description' => $this->faker->paragraph,
         ];
 
-        //Con los datos que se comparara el test, y verifica que se redireccione
-        $this->post('/projects', $attributes)->assertRedirect('/projects');
+        //Con los datos que se comparara el test, realizar la peticion
+        $response = $this->post('/projects', $attributes);
+
+        //Encontrar el proyecto que se creo
+        $project = Project::where($attributes)->first();
+
+        $response->assertRedirect($project->path());
 
         //Verificar que se creo el registro en la DB
         $this->assertDatabaseHas('projects', $attributes);

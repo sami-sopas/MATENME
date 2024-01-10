@@ -10,4 +10,17 @@ class Task extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    /*
+     Una task pertenece a un proyecto
+    */
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    public function path()
+    {
+        return "/projects/{$this->project->id}/tasks/{$this->id}";
+    }
 }

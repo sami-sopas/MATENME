@@ -29,10 +29,10 @@ class ProjectsController extends Controller
 
         //Persistir
         //Project::create($attributes);
-        auth()->user()->projects()->create($attributes);
+        $project = auth()->user()->projects()->create($attributes);
 
         //Redireccionar
-        return redirect('/projects');
+        return redirect($project->path());
     }
 
     public function show(Project $project)

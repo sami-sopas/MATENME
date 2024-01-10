@@ -9,6 +9,11 @@ class ProjectTasksController extends Controller
 {
     public function store(Project $project)
     {
+        //Verificar que sea el dueño del proyecto
+        if(auth()->user()->isNot($project->owner)){
+            abort(403);
+        }
+
         request()->validate([
             'body' => 'required'
         ]);

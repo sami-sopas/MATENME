@@ -11,6 +11,8 @@ class Task extends Model
 
     protected $guarded = [];
 
+    protected $touches = ['project'];
+
     /*
      Una task pertenece a un proyecto
     */

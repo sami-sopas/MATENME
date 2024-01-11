@@ -93,7 +93,7 @@ class ManageProjectsTest extends TestCase
         //Peticion para actualizarlo
         $this->patch($project->path(), [
             'notes' => 'Changed',
-        ]);
+        ])->assertRedirect($project->path()); //Por ultimo verificar que se redirige a la pagina principal
 
         //Asegurarnos que se actualizo viendo la DB
         $this->assertDatabaseHas('projects', ['notes' => 'Changed']);
@@ -156,6 +156,24 @@ class ManageProjectsTest extends TestCase
 
         //Intentar entrar a ese proyecto no mio
         $this->get($project->path())
+            ->assertStatus(403);
+    }
+
+    public function test_an_authenticated_user_cannot_update_the_project_of_others(): void
+    {
+
+        //Autenticar al usuario
+        $this->signIn();
+
+        //$this->withoutExceptionHandling(); //Si la dejo da http exeption
+
+        //Anterior: factory('App\Models\Project')->create();
+
+        //Crear proyecto PERO no asignarlo como suyo
+        $project = \App\Models\Project::factory()->create();
+
+        //Intentar actualizar ese proyecto no mio
+        $this->patch($project->path(),[])
             ->assertStatus(403);
     }
 }

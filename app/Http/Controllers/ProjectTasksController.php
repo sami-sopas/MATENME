@@ -11,9 +11,7 @@ class ProjectTasksController extends Controller
     public function store(Project $project)
     {
         //Verificar que sea el dueño del proyecto
-        if(auth()->user()->isNot($project->owner)){
-            abort(403);
-        }
+        $this->authorize('update', $project);
 
         request()->validate([
             'body' => 'required'
@@ -27,9 +25,7 @@ class ProjectTasksController extends Controller
     public function update(Project $project,Task $task)
     {
         //Verificar que sea el dueño del proyecto
-        if(auth()->user()->isNot($task->project->owner)){
-            abort(403);
-        }
+        $this->authorize('update', $project);
 
         //Validar
         request()->validate([

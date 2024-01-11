@@ -38,7 +38,19 @@ class ProjectsController extends Controller
 
     public function update(Project $project)
     {
+         //Si el usuario autenticado no es el dueño del proyecto
+        // if(auth()->user()->isNot($project->owner)){
+        //     abort(403);
+        // }
 
+        //Se cambio a una policy
+        $this->authorize('update', $project);
+
+        $project->update([
+            'notes' => request('notes'),
+        ]);
+
+        return redirect($project->path());
     }
 
     public function show(Project $project)
@@ -46,10 +58,7 @@ class ProjectsController extends Controller
         //LO que se uso para testear nomas
         //$project = Project::find(request('project'));
 
-        //Verifica si dos modelos son iguales
-        if(auth()->user()->isNot($project->owner)){
-            abort(403);
-        }
+        $this->authorize('update', $project);
 
         /* Anterior metodo
          if(auth()->user()->id != $project->owner_id){

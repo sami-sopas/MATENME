@@ -43,6 +43,7 @@
                         @csrf
                         @method('PATCH')
                         <textarea
+                            name="notes"
                              class="card w-full border-none mb-3"
                              style="min-height: 200px;"
                              placeholder="Write your notes here!">

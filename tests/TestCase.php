@@ -11,6 +11,10 @@ abstract class TestCase extends BaseTestCase
     // Este método inicia sesion de un usuario o lo crea
     protected function signIn($user = null)
     {
-        return $this->actingAs($user ?: \App\Models\User::factory()->create());
+        $user = $user?: \App\Models\User::factory()->create();
+
+        $this->actingAs($user);
+
+        return $user;
     }
 }

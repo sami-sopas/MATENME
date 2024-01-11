@@ -2,9 +2,10 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Facades\Tests\Setup\ProjectFactory;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ProjectTaskTest extends TestCase
 {
@@ -35,13 +36,16 @@ class ProjectTaskTest extends TestCase
 
     public function test_a_project_can_have_tasks()
     {
-        $this->signIn();
+        // $this->signIn();
 
-        $project = \App\Models\Project::factory()->raw();
+        // $project = auth()->user()->projects()->create(
+        //     \App\Models\Project::factory()->raw()
+        // );
 
-        $project = auth()->user()->projects()->create($project);
+        $project = ProjectFactory::create();
 
-        $this->post($project->path() . '/tasks', ['body' => 'Test task']);
+        $this->actingAs($project->owner)
+            ->post($project->path() . '/tasks', ['body' => 'Test task']);
 
         $this->get($project->path())
                 ->assertSee('Test task');
@@ -49,21 +53,28 @@ class ProjectTaskTest extends TestCase
 
     public function test_a_task_can_be_updated()
     {
-        $this->withoutExceptionHandling();
+
+        //Agregando el Facades\ se quita el error de non static
+        $project = ProjectFactory::withTasks(1)->create();
+                    //->ownedBy($this->signIn())
+
+
+        //Este codigo se modularizo en la clase ProjectFactory
 
         //Iniciamos sesion
-        $this->signIn();
+        //$this->signIn();
 
         //Crear un proyecto perteneciente a ese usuario
-        $project = auth()->user()->projects()->create(
-            \App\Models\Project::factory()->raw()
-        );
+        // $project = auth()->user()->projects()->create(
+        //     \App\Models\Project::factory()->raw()
+        // );
 
-        //Le creamos un task a ese proyecto
-        $task = $project->addTask('test task');
+        // //Le creamos un task a ese proyecto
+        // $task = $project->addTask('test task');
 
         //Actualizar el task
-        $this->patch($project->path() . '/tasks/' . $task->id, [
+        $this->actingAs($project->owner)
+                ->patch($project->tasks->first()->path(), [
             'body' => 'changed',
             'completed' => true
         ]);
@@ -78,19 +89,23 @@ class ProjectTaskTest extends TestCase
 
     public function test_a_task_requires_a_body()
     {
-        //Inicio sesion
-        $this->signIn();
+        // //Inicio sesion
+        // $this->signIn();
 
-        //Crear un projecto
-        $project = auth()->user()->projects()->create(
-            \App\Models\Project::factory()->raw()
-        );
+        // //Crear un projecto
+        // $project = auth()->user()->projects()->create(
+        //     \App\Models\Project::factory()->raw()
+        // );
+
+        $project = ProjectFactory::create();
 
         //Se crea un Task con un body vacio
         $attributes = \App\Models\Task::factory()->raw(['body' => '']);
 
-        //Hacer un post request para guardar el task de ese proyecto,*/
-        $this->post($project->path() . '/tasks')->assertSessionHasErrors('body');
+        //Hacer un post request para guardar el task de ese proyecto y ver que da error por el body*/
+        $this->ActingAs($project->owner)
+            ->post($project->path() . '/tasks')
+            ->assertSessionHasErrors('body');
     }
 
     public function test_only_the_owner_of_a_project_may_update_a_task()
@@ -98,14 +113,16 @@ class ProjectTaskTest extends TestCase
         //Iniciamos seseion
         $this->signIn();
 
-        //Creamos un proyecto que NO NOS PERTENECE
-        $project = \App\Models\Project::factory()->create();
+        $project = ProjectFactory::withTasks(1)->create();
 
-        //Le creamos un task a ese proyecto
-        $task = $project->addTask('test task');
+        // //Creamos un proyecto que NO NOS PERTENECE
+        // $project = \App\Models\Project::factory()->create();
+
+        // //Le creamos un task a ese proyecto
+        // $task = $project->addTask('test task');
 
         //Enviamos una patch request para actualizar el task
-        $this->patch($task->path(), ['body' => 'changed'])
+        $this->patch($project->tasks[0]->path(), ['body' => 'changed'])
                 ->assertStatus(403); //Error cuando no tienes permisos
 
         //Verificar que eso no se haya agregado a la base de datos

@@ -6,6 +6,7 @@ use Tests\TestCase;
 use App\Models\Project;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Facades\Tests\Setup\ProjectFactory;
 
 class ManageProjectsTest extends TestCase
 {
@@ -45,7 +46,6 @@ class ManageProjectsTest extends TestCase
      */
     public function test_a_user_can_create_a_project(): void
     {
-        $this->withoutExceptionHandling();
 
         //$this->actingAs(\App\Models\User::factory()->create());
 
@@ -83,20 +83,18 @@ class ManageProjectsTest extends TestCase
     public function test_a_user_can_update_a_project() : void
     {
         //Crear usuario para que estemos "autenticados"
-        $this->signIn();
-
-        $this->withoutDeprecationHandling();
+        //$this->signIn();
 
         //Crear proyecto que le pertenezca
-        $project = \App\Models\Project::factory()->create(['owner_id' => auth()->id()]);
+        $project = ProjectFactory::create();
 
         //Peticion para actualizarlo
-        $this->patch($project->path(), [
-            'notes' => 'Changed',
-        ])->assertRedirect($project->path()); //Por ultimo verificar que se redirige a la pagina principal
+        $this->actingAs($project->owner)
+                ->patch($project->path(), $attributes = ['notes' => 'Changed',])
+                ->assertRedirect($project->path()); //Por ultimo verificar que se redirige a la pagina principal
 
         //Asegurarnos que se actualizo viendo la DB
-        $this->assertDatabaseHas('projects', ['notes' => 'Changed']);
+        $this->assertDatabaseHas('projects',$attributes);
     }
 
     public function test_a_project_requires_a_title(): void
@@ -120,26 +118,15 @@ class ManageProjectsTest extends TestCase
         $this->post('/projects',$attributes)->assertSessionHasErrors('description');
     }
 
-    /*
     public function test_a_user_can_view_their_project(): void
     {
-
-        //Autenticar al usuario
-        $this->signIn();
-        //$this->be(\App\Models\User::factory()->create());
-
-        $this->withoutExceptionHandling(); //Quitar mensadas
-
-        //Anterior: factory('App\Models\Project')->create();
-
-        //Crear proyecto, y asignarlo como suyo
-        $project = \App\Models\Project::factory()->create(['owner_id' => auth()->id()]);
+        $project = $project = ProjectFactory::create();
 
         //Ver si puede ver el proyecto
-        $this->get($project->path())
+        $this->actingAs($project->owner)->get($project->path())
             ->assertSee($project->title)
             ->assertSee($project->description);
-    }*/
+    }
 
     public function test_an_authenticated_user_cannot_view_the_project_of_others(): void
     {
@@ -173,7 +160,7 @@ class ManageProjectsTest extends TestCase
         $project = \App\Models\Project::factory()->create();
 
         //Intentar actualizar ese proyecto no mio
-        $this->patch($project->path(),[])
+        $this->patch($project->path())
             ->assertStatus(403);
     }
 }

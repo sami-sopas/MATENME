@@ -18,11 +18,7 @@ class ProjectsController extends Controller
     public function store()
     {
         //Validar
-        $attributes = request()->validate([
-            'title' => 'required',
-            'description' => 'required',
-            'notes' => 'min:3',
-            ]);
+        //$attributes = $this->validate();
 
         //$attributes['owner_id'] = auth()->id();
 
@@ -30,10 +26,29 @@ class ProjectsController extends Controller
 
         //Persistir
         //Project::create($attributes);
-        $project = auth()->user()->projects()->create($attributes);
+        $project = auth()->user()->projects()->create($this->validateRequest());
 
         //Redireccionar
         return redirect($project->path());
+    }
+
+    /*
+    * @return array
+    */
+    protected function validateRequest()
+    {
+        $attributes = request()->validate([
+            'title' => 'sometimes|required',
+            'description' => 'sometimes|required',
+            'notes' => 'nullable',
+            ]);
+
+        return $attributes;
+    }
+
+    public function edit(Project $project)
+    {
+        return view('project.edit', compact('project'));
     }
 
     public function update(Project $project)
@@ -46,9 +61,10 @@ class ProjectsController extends Controller
         //Se cambio a una policy
         $this->authorize('update', $project);
 
-        $project->update([
-            'notes' => request('notes'),
-        ]);
+        //Validar
+        //$attributes = $this->validate();
+
+        $project->update($this->validateRequest());
 
         return redirect($project->path());
     }

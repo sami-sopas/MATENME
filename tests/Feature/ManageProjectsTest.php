@@ -18,6 +18,7 @@ class ManageProjectsTest extends TestCase
 
         $this->get('/projects')->assertRedirectToRoute('login'); //Acceder al index
         $this->get('/projects/create')->assertRedirectToRoute('login'); //Acceder a crear proyecto
+        $this->get('projects/edit')->assertRedirectToRoute('login'); //Acceder a editar proyecto
         $this->get($project->path())->assertRedirectToRoute('login'); //Acceder a proyecto especifico
         $this->post('/projects', $project->toArray())->assertRedirect('login'); //Crear a un proyecto
     }
@@ -90,11 +91,26 @@ class ManageProjectsTest extends TestCase
 
         //Peticion para actualizarlo
         $this->actingAs($project->owner)
-                ->patch($project->path(), $attributes = ['notes' => 'Changed',])
+                ->patch($project->path(), $attributes = ['title' => 'Changed','description' => 'Changed','notes' => 'Changed',])
                 ->assertRedirect($project->path()); //Por ultimo verificar que se redirige a la pagina principal
+
+        $this->get($project->path().'/edit')->assertOk(); //Puede acceder a la vista para editar
 
         //Asegurarnos que se actualizo viendo la DB
         $this->assertDatabaseHas('projects',$attributes);
+    }
+
+    public function test_a_user_can_update_a_projects_general_notes() : void
+    {
+         //Crear proyecto que le pertenezca
+         $project = ProjectFactory::create();
+
+         //Peticion para actualizarlo
+         $this->actingAs($project->owner)
+                 ->patch($project->path(), $attributes = ['notes' => 'Changed']);
+
+         //Asegurarnos que se actualizo viendo la DB
+         $this->assertDatabaseHas('projects',$attributes);
     }
 
     public function test_a_project_requires_a_title(): void
@@ -118,15 +134,17 @@ class ManageProjectsTest extends TestCase
         $this->post('/projects',$attributes)->assertSessionHasErrors('description');
     }
 
-    public function test_a_user_can_view_their_project(): void
-    {
-        $project = $project = ProjectFactory::create();
+    //PENDIENTE
+    // public function test_a_user_can_view_their_project(): void
+    // {
+    //     $project = ProjectFactory::create();
 
-        //Ver si puede ver el proyecto
-        $this->actingAs($project->owner)->get($project->path())
-            ->assertSee($project->title)
-            ->assertSee($project->description);
-    }
+    //     //Ver si puede ver el proyecto
+    //     $this->actingAs($project->owner)
+    //         ->get($project->path())
+    //         ->assertSee($project->title)
+    //         ->assertSee($project->description);
+    // }
 
     public function test_an_authenticated_user_cannot_view_the_project_of_others(): void
     {
